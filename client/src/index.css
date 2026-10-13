@@ -1,0 +1,67 @@
+@import "tailwindcss";
+
+@theme {
+  /* Opsuite Brand Color Tokens */
+  --color-opsuite-navy: #0e1c36;
+  --color-opsuite-blue: #2563eb;
+  --color-opsuite-coral: #e05a2b;
+  --color-opsuite-yellow: #f59e0b;
+
+  /* Custom Light Theme Surfaces */
+  --color-surface-bg: #ffffff;
+  --color-surface-card: #f8fafc;
+  --color-surface-border: #e2e8f0;
+
+  /* Font Family Setup */
+  --font-sans: "Inter", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
+    Roboto, sans-serif;
+}
+
+/* Global Reset & Base Utility Tweaks */
+@layer base {
+  *,
+  ::after,
+  ::before {
+    box-sizing: border-box;
+  }
+
+  html,
+  body {
+    background-color: #ffffff;
+    color: #0e1c36;
+    font-family: var(--font-sans);
+    -webkit-font-smoothing: antialiased;
+    -moz-osx-font-smoothing: grayscale;
+  }
+
+  /* Ensure standard tabular numbers for monetary figures */
+  .tabular-nums {
+    font-variant-numeric: tabular-nums;
+  }
+}
+
+/* Custom Component Utility Classes */
+@layer components {
+  /* Inputs Focus & Styling */
+  .daily-sale-log-input {
+    @apply w-full rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm text-slate-900 shadow-xs transition-colors focus:border-[#0E1C36] focus:outline-none focus:ring-2 focus:ring-[#0E1C36]/10;
+  }
+
+  /* Buttons */
+  .btn-primary {
+    @apply inline-flex items-center justify-center rounded-lg bg-[#0E1C36] px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition-all hover:bg-[#1A2E50] focus:outline-none focus:ring-2 focus:ring-[#0E1C36] focus:ring-offset-2 active:scale-[0.98];
+  }
+
+  .btn-accent-coral {
+    @apply inline-flex items-center justify-center rounded-lg bg-[#E05A2B] px-4 py-2.5 text-sm font-semibold text-white shadow-xs transition-all hover:bg-[#C84A1E] focus:outline-none focus:ring-2 focus:ring-[#E05A2B] focus:ring-offset-2 active:scale-[0.98];
+  }
+
+  .btn-outline {
+    @apply inline-flex items-center justify-center rounded-lg border border-slate-200 bg-white px-3.5 py-2.5 text-sm font-medium text-slate-700 transition-colors hover:bg-slate-50 hover:text-slate-900 focus:outline-none focus:ring-2 focus:ring-slate-300;
+  }
+
+  /* Card Containers */
+  .daily-sale-log-card {
+    @apply rounded-xl border border-slate-200/80 bg-white p-5 shadow-xs transition-all hover:border-slate-300;
+  }
+}
