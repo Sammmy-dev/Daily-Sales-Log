@@ -1,22 +1,29 @@
-import { useState, useMemo } from 'react';
 import { useSalesStore } from '../lib/store';
-import { FaSearch, FaTrash, FaTimes } from 'react-icons/fa';
+import type { Sale } from '../lib/store';
+import { FaSearch, FaTimes } from 'react-icons/fa';
 import { FaRotateLeft } from 'react-icons/fa6';
 
-export default function SalesTable() {
-  const { sales, deleteSale, clearAllSales, runningTotals, isLoading, error, clearError } = useSalesStore();
-  const [searchTerm, setSearchTerm] = useState('');
-  const [dateFilter, setDateFilter] = useState('');
+interface SalesTableProps {
+  filteredSales: Array<{ sale: Sale; runningTotal: number }>;
+  totalSales: number;
+  searchTerm: string;
+  dateFilter: string;
+  onSearchTermChange: (value: string) => void;
+  onDateFilterChange: (value: string) => void;
+}
 
-  const filteredSales = useMemo(() => {
-    const sorted = [...runningTotals].sort((a, b) => new Date(b.sale.timestamp).getTime() - new Date(a.sale.timestamp).getTime());
-
-    return sorted.filter(({ sale }) => {
-      const matchesSearch = sale.item_name.toLowerCase().includes(searchTerm.toLowerCase());
-      const matchesDate = !dateFilter || sale.timestamp.slice(0, 10) === dateFilter;
-      return matchesSearch && matchesDate;
-    });
-  }, [runningTotals, searchTerm, dateFilter]);
+export default function SalesTable({
+  filteredSales,
+  totalSales,
+  searchTerm,
+  dateFilter,
+  onSearchTermChange,
+  onDateFilterChange,
+}: SalesTableProps) {
+  const { deleteSale, isLoading, error, clearError } = useSalesStore();
+  const sortedSales = [...filteredSales].sort(
+    (a, b) => new Date(b.sale.timestamp).getTime() - new Date(a.sale.timestamp).getTime(),
+  );
 
   const formatNaira = (amount: number) =>
     '₦' + amount.toLocaleString('en-NG', { minimumFractionDigits: 2, maximumFractionDigits: 2 });
@@ -35,15 +42,9 @@ export default function SalesTable() {
     }
   };
 
-  const handleClearAll = () => {
-    if (confirm('Clear all sales transactions?')) {
-      clearAllSales();
-    }
-  };
-
   const resetFilters = () => {
-    setSearchTerm('');
-    setDateFilter('');
+    onSearchTermChange('');
+    onDateFilterChange('');
   };
 
   if (error) {
@@ -77,7 +78,7 @@ export default function SalesTable() {
               <input
                 type="text"
                 value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
+                onChange={(e) => onSearchTermChange(e.target.value)}
                 placeholder="Search item..."
                 className="w-full bg-slate-50 border border-slate-200 rounded-xl pl-8 pr-3 py-2 text-xs text-slate-800 placeholder-slate-400 focus:outline-none focus:bg-white focus:border-opsuite-blue"
               />
@@ -86,7 +87,7 @@ export default function SalesTable() {
             <input
               type="date"
               value={dateFilter}
-              onChange={(e) => setDateFilter(e.target.value)}
+              onChange={(e) => onDateFilterChange(e.target.value)}
               className="bg-slate-50 border border-slate-200 rounded-xl px-2.5 py-2 text-xs text-slate-800 focus:outline-none focus:bg-white focus:border-opsuite-blue"
             />
 
@@ -112,7 +113,7 @@ export default function SalesTable() {
               </tr>
             </thead>
             <tbody id="salesTableBody" className="divide-y divide-slate-100">
-              {filteredSales.length === 0 ? (
+              {sortedSales.length === 0 ? (
                 <tr>
                   <td colSpan={5} className="py-12 text-center">
                     <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3 text-slate-400">
@@ -127,7 +128,7 @@ export default function SalesTable() {
                   </td>
                 </tr>
               ) : (
-                filteredSales.map(({ sale, runningTotal }) => {
+                sortedSales.map(({ sale, runningTotal }) => {
                   const { time, date } = formatDateTime(sale.timestamp);
                   return (
                     <tr key={sale._id} className="hover:bg-slate-50 transition-colors">
@@ -136,7 +137,7 @@ export default function SalesTable() {
                         <div className="text-[10px] text-slate-400">{date}</div>
                       </td>
                       <td className="py-3 px-3">
-                        <div className="font-semibold text-slate-900">{sale.item_name}</div>
+                        <div className="font-semibold text-slate-900">{sale.itemName}</div>
                       </td>
                       <td className="py-3 px-3 text-right font-bold text-slate-800 tabular-nums">
                         {formatNaira(sale.amount)}
@@ -162,7 +163,7 @@ export default function SalesTable() {
           </table>
         </div>
 
-        {filteredSales.length === 0 && sales.length > 0 && (
+        {sortedSales.length === 0 && totalSales > 0 && (
           <div id="emptyState" className="py-12 text-center">
             <div className="w-12 h-12 bg-slate-100 rounded-2xl flex items-center justify-center mx-auto mb-3 text-slate-400">
               <svg className="w-6 h-6" fill="none" stroke="currentColor" viewBox="0 0 24 24">
@@ -175,18 +176,10 @@ export default function SalesTable() {
         )}
       </div>
 
-      <div className="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center justify-between text-xs text-slate-500 gap-3">
+      <div className="mt-6 pt-4 border-t border-slate-100 flex flex-wrap items-center text-xs text-slate-500 gap-3">
         <div className="font-medium text-slate-600">
           Showing {filteredSales.length} transaction{filteredSales.length !== 1 ? 's' : ''}
         </div>
-        <button
-          onClick={handleClearAll}
-          disabled={isLoading || sales.length === 0}
-          className="text-rose-600 hover:text-rose-700 disabled:text-slate-300 bg-rose-50 hover:bg-rose-100 disabled:bg-slate-100 px-3 py-1.5 rounded-lg border border-rose-200 disabled:border-slate-200 transition font-medium flex items-center gap-1.5"
-        >
-          <FaTrash className="text-xs" />
-          Clear Ledger
-        </button>
       </div>
     </div>
   );

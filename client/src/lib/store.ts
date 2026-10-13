@@ -3,7 +3,7 @@ import { salesApi } from './api';
 
 export interface Sale {
   _id: string;
-  item_name: string;
+  itemName: string;
   amount: number;
   timestamp: string;
   createdAt: string;
@@ -27,20 +27,12 @@ interface SalesActions {
   addSale: (data: SaleInput) => Promise<Sale>;
   deleteSale: (id: string) => Promise<void>;
   clearAllSales: () => Promise<void>;
-  seedSampleData: (count?: number) => Promise<void>;
   clearError: () => void;
 }
 
-interface SalesSelectors {
-  runningTotals: Array<{ sale: Sale; runningTotal: number }>;
-  totalRevenue: number;
-  totalCount: number;
-  averageOrderValue: number;
-}
+type SalesStore = SalesState & SalesActions;
 
-type SalesStore = SalesState & SalesActions & SalesSelectors;
-
-export const useSalesStore = create<SalesStore>((set, get) => ({
+export const useSalesStore = create<SalesStore>((set) => ({
   sales: [],
   isLoading: false,
   error: null,
@@ -87,23 +79,6 @@ export const useSalesStore = create<SalesStore>((set, get) => ({
     }
   },
 
-  seedSampleData: async (count = 12) => {
-    set({ isLoading: true, error: null });
-    try {
-      const response = await salesApi.seed(count);
-      const newSales = response.data || [];
-      set((state) => ({
-        sales: [...state.sales, ...newSales].sort((a, b) =>
-          new Date(a.timestamp).getTime() - new Date(b.timestamp).getTime()
-        ),
-        isLoading: false,
-      }));
-    } catch (error) {
-      set({ error: error instanceof Error ? error.message : 'Failed to seed data', isLoading: false });
-      throw error;
-    }
-  },
-
   clearAllSales: async () => {
     set({ isLoading: true, error: null });
     try {
@@ -116,26 +91,4 @@ export const useSalesStore = create<SalesStore>((set, get) => ({
   },
 
   clearError: () => set({ error: null }),
-
-  get runningTotals() {
-    const { sales } = get();
-    let runningTotal = 0;
-    return sales.map((sale) => {
-      runningTotal += sale.amount;
-      return { sale, runningTotal };
-    });
-  },
-
-  get totalRevenue() {
-    return get().sales.reduce((sum, sale) => sum + sale.amount, 0);
-  },
-
-  get totalCount() {
-    return get().sales.length;
-  },
-
-  get averageOrderValue() {
-    const { sales } = get();
-    return sales.length > 0 ? get().totalRevenue / sales.length : 0;
-  },
 }));

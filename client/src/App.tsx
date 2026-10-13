@@ -2,13 +2,14 @@ import { useEffect, useState } from 'react';
 import { useSalesStore } from './lib/store';
 import Header from './components/Header';
 import KPICards from './components/KPICards';
-import SeedBanner from './components/SeedBanner';
 import SaleFormModal from './components/SaleFormModal';
 import SalesTable from './components/SalesTable';
 
 function App() {
-  const { fetchSales, sales, totalCount, averageOrderValue, runningTotals } = useSalesStore();
+  const { fetchSales, sales } = useSalesStore();
   const [isModalOpen, setIsModalOpen] = useState(false);
+  const [searchTerm, setSearchTerm] = useState('');
+  const [dateFilter, setDateFilter] = useState('');
   const todayStr = new Date().toISOString().slice(0, 10);
 
   useEffect(() => {
@@ -19,17 +20,32 @@ function App() {
   const todayTotal = todaySales.reduce((sum, s) => sum + s.amount, 0);
   const todayCount = todaySales.length;
 
-  const filteredSales = runningTotals;
-  const filteredTotal = filteredSales.reduce((sum, rt) => sum + rt.sale.amount, 0);
+  const totalCount = sales.length;
+  const averageOrderValue = totalCount > 0
+    ? sales.reduce((sum, sale) => sum + sale.amount, 0) / totalCount
+    : 0;
+  const runningTotals = sales.reduce<Array<{ sale: typeof sales[number]; runningTotal: number }>>(
+    (totals, sale) => {
+      const runningTotal = (totals.at(-1)?.runningTotal ?? 0) + sale.amount;
+      totals.push({ sale, runningTotal });
+      return totals;
+    },
+    [],
+  );
+  const filteredSales = runningTotals.filter(({ sale }) => {
+    const matchesSearch = sale.itemName.toLowerCase().includes(searchTerm.toLowerCase());
+    const matchesDate = !dateFilter || sale.timestamp.slice(0, 10) === dateFilter;
+    return matchesSearch && matchesDate;
+  });
+  const filteredTotal = filteredSales.reduce((sum, { sale }) => sum + sale.amount, 0);
   const filteredCount = filteredSales.length;
 
   return (
     <div className="min-h-screen flex flex-col antialiased text-slate-800 bg-slate-50">
       <Header />
 
-      <main className="flex-1 max-w-7xl w-full mx-auto py-4 sm:py-6 lg:py-8 space-y-6">
+      <main className="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-4 sm:py-6 lg:py-8 space-y-6">
         <div className="space-y-6">
-          <SeedBanner />
           <KPICards
             todayTotal={todayTotal}
             todayCount={todayCount}
@@ -47,7 +63,14 @@ function App() {
               <span className="text-opsuite-yellow">+</span>
               <span>Log New Sale</span>
             </button>
-            <SalesTable />
+            <SalesTable
+              filteredSales={filteredSales}
+              totalSales={totalCount}
+              searchTerm={searchTerm}
+              dateFilter={dateFilter}
+              onSearchTermChange={setSearchTerm}
+              onDateFilterChange={setDateFilter}
+            />
           </div>
         </div>
       </main>

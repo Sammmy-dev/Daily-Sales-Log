@@ -6,7 +6,13 @@ import { config } from './config/index.ts';
 
 const app = express();
 
-app.use(cors());
+app.use(cors({
+  origin: '*',
+  credentials: true,
+  methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+  allowedHeaders: ['Content-Type', 'Authorization'],
+}));
+
 app.use(express.json());
 
 app.use('/api', saleRoutes);
@@ -23,7 +29,7 @@ const connectDB = async (): Promise<void> => {
     console.error('MongoDB connection error:', error);
     process.exit(1);
   }
-};
+}; 
 
 const startServer = async (): Promise<void> => {
   await connectDB();

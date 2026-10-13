@@ -19,7 +19,6 @@ The visual design follows a clean, minimalist white architecture (Deep Navy `#0E
 * **View Transactions List:** As a shop owner, I can view all recorded sales listed in a chronological, easy-to-read table.
 * **Running Total Calculation:** As a shop owner, I can see a dynamic, cumulative running total column calculated for every transaction on the log.
 * **Daily Summary Metrics:** As a shop owner, I can view overall daily summary cards (Total Revenue, Total Sales Count, Average Transaction Value).
-* **Preset Data Seeder:** As an evaluator/tester, I can trigger a "Seed 10-15 Sample Sales" button to instantly populate realistic transaction records into the database.
 * **Persistent Data:** As a shop owner, all sales records persist in a live external database (PostgreSQL / MongoDB) via an Express REST API.
 
 ### 2.2 Non-Functional Requirements
@@ -39,7 +38,7 @@ The visual design follows a clean, minimalist white architecture (Deep Navy `#0E
 
 #### rules
 * components should be created when necessary
-* use predefined style in global.css
+* use predefined styles in global.css
 * follow design.md for UI 
 
 ### Backend Architecture
@@ -72,6 +71,5 @@ CREATE TABLE sales (
   item_name VARCHAR(255) NOT NULL,
   amount DECIMAL(12, 2) NOT NULL,
   timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  category VARCHAR(100) DEFAULT 'General',
   created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
 );

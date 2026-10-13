@@ -132,7 +132,7 @@ export default function SaleFormModal({ isOpen, onClose }: SaleFormModalProps) {
               <button
                 type="button"
                 onClick={setNowTime}
-                className="px-3 py-2.5 text-xs font-semibold text-opsuite-blue hover:underline bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition whitespace-nowrap"
+                className="flex items-center px-3 py-2.5 text-xs font-semibold text-opsuite-blue bg-slate-50 border border-slate-200 rounded-xl hover:bg-slate-100 transition whitespace-nowrap"
               >
                 <FaClock className="text-xs mr-1" /> Now
               </button>

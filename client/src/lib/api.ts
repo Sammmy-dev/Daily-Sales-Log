@@ -21,7 +21,6 @@ export const salesApi = {
   fetchAll: () => api.get('/sales'),
   create: (data: { item_name: string; amount: number; timestamp?: string }) =>
     api.post('/sales', data),
-  seed: (count?: number) => api.post('/sales/seed', { count }),
   delete: (id: string) => api.delete(`/sales/${id}`),
   clearAll: () => api.delete('/sales'),
 };
