@@ -32,7 +32,7 @@ The visual design follows a clean, minimalist white architecture (Deep Navy `#0E
 ## 3. Tech Stack & System Architecture
 
 ### Frontend Architecture
-* **Framework:** Next.js 16 with typescript(App Router)
+* **Framework:** React.js with typescript
 * **State Management:** Zustand (handling global sales state, UI optimistic updates, and metrics calculation)
 * **HTTP Client:** Axios (configured with custom interceptors and error handling)
 * **Styling:** Tailwind CSS v4 + react-icons
