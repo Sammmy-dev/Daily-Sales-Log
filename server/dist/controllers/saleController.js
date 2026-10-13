@@ -57,58 +57,6 @@ export const createSale = async (req, res) => {
         });
     }
 };
-export const seedSales = async (req, res) => {
-    try {
-        const count = req.body.count || Math.floor(Math.random() * 6) + 10;
-        const sampleItems = [
-            { itemName: 'Rice (50kg)', amount: 45000 },
-            { itemName: 'Beans (50kg)', amount: 52000 },
-            { itemName: 'Groundnut Oil (25L)', amount: 38000 },
-            { itemName: 'Tomatoes (Basket)', amount: 15000 },
-            { itemName: 'Pepper (Basket)', amount: 12000 },
-            { itemName: 'Onions (Bag)', amount: 28000 },
-            { itemName: 'Maggi (Carton)', amount: 8500 },
-            { itemName: 'Salt (Bag)', amount: 3500 },
-            { itemName: 'Milk (Carton)', amount: 18000 },
-            { itemName: 'Sugar (50kg)', amount: 42000 },
-            { itemName: 'Flour (50kg)', amount: 35000 },
-            { itemName: 'Spaghetti (Carton)', amount: 9500 },
-            { itemName: 'Bread (Loaf)', amount: 800 },
-            { itemName: 'Eggs (Crate)', amount: 3200 },
-            { itemName: 'Chicken (Kg)', amount: 4500 },
-        ];
-        const salesToCreate = [];
-        const now = new Date();
-        for (let i = 0; i < count; i++) {
-            const item = sampleItems[Math.floor(Math.random() * sampleItems.length)];
-            const daysAgo = Math.floor(Math.random() * 7);
-            const hoursAgo = Math.floor(Math.random() * 24);
-            const minutesAgo = Math.floor(Math.random() * 60);
-            const timestamp = new Date(now);
-            timestamp.setDate(timestamp.getDate() - daysAgo);
-            timestamp.setHours(timestamp.getHours() - hoursAgo);
-            timestamp.setMinutes(timestamp.getMinutes() - minutesAgo);
-            salesToCreate.push({
-                itemName: item.itemName,
-                amount: item.amount + Math.floor(Math.random() * 5000) - 2500,
-                timestamp,
-            });
-        }
-        const createdSales = await Sale.insertMany(salesToCreate);
-        const response = {
-            success: true,
-            count: createdSales.length,
-            data: createdSales,
-        };
-        res.status(201).json(response);
-    }
-    catch (error) {
-        res.status(500).json({
-            success: false,
-            message: 'Failed to seed sales',
-        });
-    }
-};
 export const deleteSale = async (req, res) => {
     try {
         const id = Array.isArray(req.params.id) ? req.params.id[0] : req.params.id;

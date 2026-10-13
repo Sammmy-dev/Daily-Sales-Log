@@ -7,7 +7,7 @@ import { config } from './config/index.ts';
 const app = express();
 
 app.use(cors({
-  origin: '*',
+  origin: config.frontendUrl,
   credentials: true,
   methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
   allowedHeaders: ['Content-Type', 'Authorization'],

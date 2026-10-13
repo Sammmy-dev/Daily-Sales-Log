@@ -40,6 +40,7 @@ Requirements: Node.js, npm, and a MongoDB connection.
    PORT=5000
    MONGODB_URI=mongodb://localhost:27017/daily-sales-log
    NODE_ENV=development
+   FRONTEND_URL=http://localhost:5173
    ```
 
 2. Optionally configure the frontend API URL in `client/.env`:

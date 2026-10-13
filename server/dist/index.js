@@ -4,7 +4,12 @@ import mongoose from 'mongoose';
 import saleRoutes from './routes/saleRoutes.js';
 import { config } from './config/index.js';
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: config.frontendUrl,
+    credentials: true,
+    methods: ['GET', 'POST', 'DELETE', 'OPTIONS'],
+    allowedHeaders: ['Content-Type', 'Authorization'],
+}));
 app.use(express.json());
 app.use('/api', saleRoutes);
 app.get('/health', (req, res) => {
