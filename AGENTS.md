@@ -1,75 +1,51 @@
-# Product Requirement Document (PRD)
+# Daily Sales Log
 
-## Project Name
-**Daily Sales Log**
+## Product Summary
 
----
+Daily Sales Log is a single-tenant sales dashboard for small business owners. It records sales in MongoDB through an Express REST API and presents daily metrics and a searchable transaction ledger.
 
-## 1. Product Summary & Goal
-**Daily Sales Log** is a streamlined, single-tenant daily transaction logger and real-time financial tracking dashboard designed for small business owners and retail operators. Built as part of a technical evaluation, the system enables users to log daily sales (item name, amount, timestamp), maintain persistent transaction records in a real database, and view dynamically computed running totals alongside key sales metrics.
+The visual design uses a minimalist white layout with deep navy (`#0E1C36`), royal blue (`#2563EB`), coral (`#E05A2B`), and golden yellow (`#F59E0B`).
 
-The visual design follows a clean, minimalist white architecture (Deep Navy `#0E1C36`, Royal Blue `#2563EB`, Coral `#E05A2B`, and Golden Yellow `#F59E0B`).
+## Current Functionality
 
----
+- Create a sale with an item name, positive amount in Nigerian naira, and a date/time using the sale-entry modal.
+- View today's revenue and count, all-time transaction count and average transaction value.
+- Search the ledger by item name and filter by date. The filtered total and count reflect the visible matching records.
+- View sales in timestamp order with a cumulative running total; delete an individual sale.
+- Persist records in MongoDB through the Express API.
+- Load 15 fixed sample records with `cd server && npm run seed`. This script **deletes all existing sales** before inserting the samples; there is no seed API endpoint or in-app seed button.
 
-## 2. Core User Stories & Functional Requirements
+The API supports clearing all sales with `DELETE /api/sales`, but the dashboard does not currently expose a clear-ledger control.
 
-### 2.1 Core Requirements
-* **Log a Sale:** As a shop owner, I can enter an item name, sale amount (in ₦ Naira), and time/date to log a new sales transaction.
-* **View Transactions List:** As a shop owner, I can view all recorded sales listed in a chronological, easy-to-read table.
-* **Running Total Calculation:** As a shop owner, I can see a dynamic, cumulative running total column calculated for every transaction on the log.
-* **Daily Summary Metrics:** As a shop owner, I can view overall daily summary cards (Total Revenue, Total Sales Count, Average Transaction Value).
-* **Persistent Data:** As a shop owner, all sales records persist in a live external database (PostgreSQL / MongoDB) via an Express REST API.
+## Architecture and Conventions
 
-### 2.2 Non-Functional Requirements
-* **Performance:** Sub-100ms UI update latency using optimistic local state management (Zustand) synced with backend REST APIs via Axios.
-* **Minimalist & Responsive UI:** Fully responsive layout (desktop & mobile) adhering to Opsuite's white minimalist style guidelines.
-* **Data Integrity:** Strict server-side validation ensuring non-empty item names and positive numeric sale amounts.
+### Frontend
 
----
-
-## 3. Tech Stack & System Architecture
-
-### Frontend Architecture
-* **Framework:** React.js with typescript
-* **State Management:** Zustand (handling global sales state, UI optimistic updates, and metrics calculation)
-* **HTTP Client:** Axios (configured with custom interceptors and error handling)
-* **Styling:** Tailwind CSS v4 + react-icons
+- React, TypeScript, and Vite SPA.
+- Zustand holds the shared sales list, loading state, and API errors. Sales are added to or removed from client state after the API request succeeds; updates are not optimistic.
+- Axios handles REST requests and normalizes API errors.
+- Tailwind CSS v4 provides styling. Use the existing color tokens in `client/src/index.css` and follow `client/design.md`.
+- Keep the transaction ledger easy to browse: sale entry belongs in a modal, not as an inline form in the ledger flow.
 
 #### rules
 * components should be created when necessary
-* use predefined styles in global.css
+* use predefined style in global.css
 * follow design.md for UI 
 
-### Backend Architecture
-* **Server Framework:** Express.js (Node.js REST API)
-* **Database:** MongoDB (via Mongoose)
-* **Deployment Platform:** Vercel (Frontend Next.js) + Render
-* **Structure:** MVC
+### Backend
 
----
+- Express REST API using TypeScript and MongoDB via Mongoose.
+- Routes and controllers follow the MVC structure under `server/src`.
+- The Mongoose sale model stores `itemName`, `amount`, `timestamp`, and automatic `createdAt`/`updatedAt` timestamps. The API accepts `item_name` for sale creation and returns MongoDB's `itemName` field.
+- Validate non-empty item names and positive numeric amounts on the server.
 
-## 4. API Endpoints Specification (Express Backend)
+## API
 
-| Method | Endpoint | Description | Request Body | Response |
-| :--- | :--- | :--- | :--- | :--- |
-| `GET` | `/api/sales` | Fetch all sales ordered by timestamp ASC | N/A | `{ success: true, data: [Sale] }` |
-| `POST` | `/api/sales` | Record a new sale transaction | `{ item_name: string, amount: number, timestamp?: string }` | `{ success: true, data: Sale }` |
-| `POST` | `/api/sales/seed` | Seed 10–15 sample sales for testing | `{ count?: number }` | `{ success: true, count: number, data: [Sale] }` |
-| `DELETE` | `/api/sales/:id` | Delete a specific sale item | N/A | `{ success: true, id: string }` |
-| `DELETE` | `/api/sales` | Clear all recorded sales (reset) | N/A | `{ success: true, message: "Cleared" }` |
+All routes are mounted under `/api`.
 
----
-
-## 5. Database Schema
-
-### `sales` Table / Collection
-
-```sql
-CREATE TABLE sales (
-  id VARCHAR(36) PRIMARY KEY DEFAULT gen_random_uuid(),
-  item_name VARCHAR(255) NOT NULL,
-  amount DECIMAL(12, 2) NOT NULL,
-  timestamp TIMESTAMPTZ NOT NULL DEFAULT NOW(),
-  created_at TIMESTAMPTZ NOT NULL DEFAULT NOW()
-);
+| Method | Endpoint | Behavior |
+| --- | --- | --- |
+| `GET` | `/api/sales` | Return all sales ordered by timestamp ascending in `{ success, data }`. |
+| `POST` | `/api/sales` | Create a sale from `{ item_name, amount, timestamp? }`; return `{ success, data }`. |
+| `DELETE` | `/api/sales/:id` | Delete one sale; return `{ success, data: { id } }`. |
+| `DELETE` | `/api/sales` | Delete all sales; return a success message. |
