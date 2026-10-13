@@ -10,6 +10,21 @@ A responsive sales dashboard for recording transactions, reviewing daily KPIs, a
 - Review transactions in a ledger with chronological running totals and delete individual sales.
 - Use the matching custom logo and favicon.
 
+## Notes
+
+### What I built
+
+A sales logging dashboard with a React and TypeScript frontend, an Express API backed by MongoDB, KPI cards, and a searchable, date-filtered transaction ledger with running totals.
+
+### Decisions
+
+- I used a modal for sale entry to keep the ledger in view and make browsing transactions the primary experience.
+- I chose React with Vite instead of Next.js because the application is a single-page app and does not need server-side rendering or framework-level routing.
+
+### With one more day
+
+I would add pagination to make the transaction ledger easier to browse as the number of sales grows.
+
 ## Tech stack
 
 - **Frontend:** React, TypeScript, Vite, Zustand, Axios, Tailwind CSS v4, and react-icons
